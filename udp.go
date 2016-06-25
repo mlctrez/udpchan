@@ -58,14 +58,16 @@ func (u *UdpChan) receiveLoop() {
 
 func (u *UdpChan) sendLoop() {
 	for {
-		toSend := <-u.send
-		if toSend != nil {
+		if toSend, ok := <-u.send; ok {
 			u.sconn.Write(toSend)
 		}
 	}
 }
 
 func (u *UdpChan) Close() (err error) {
+
+	close(u.send)
+
 	if u.lconn != nil {
 		err = u.lconn.Close()
 	}
