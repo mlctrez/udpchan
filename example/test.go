@@ -6,6 +6,16 @@ import (
 	"time"
 )
 
+func receive(rec chan []byte) {
+	for {
+		if msg, ok := <-rec; !ok {
+			return
+		} else {
+			fmt.Printf("got message %q\n", string(msg))
+		}
+	}
+}
+
 func main() {
 
 	rec := make(chan []byte, 10)
@@ -14,23 +24,13 @@ func main() {
 		panic(err)
 	}
 
-	go func() {
-		for {
-			if msg, ok := <-rec; ok {
-				fmt.Printf("got message %q\n", string(msg))
-			} else {
-				return
-			}
-		}
-	}()
+	go receive(rec)
 
-	uc.Send([]byte("hello"))
-
-	time.Sleep(1 * time.Second)
+	for i := 0; i < 10; i++ {
+		uc.Send([]byte(fmt.Sprintf("sending at %v", time.Now().In(time.UTC).String())))
+		time.Sleep(500 * time.Millisecond)
+	}
 
 	uc.Close()
 	close(rec)
-
-	time.Sleep(1 * time.Second)
-
 }
