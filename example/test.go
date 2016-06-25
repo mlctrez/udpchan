@@ -16,9 +16,10 @@ func main() {
 
 	go func() {
 		for {
-			msg := <-rec
-			if msg != nil {
+			if msg, ok := <-rec; ok {
 				fmt.Printf("got message %q\n", string(msg))
+			} else {
+				return
 			}
 		}
 	}()
